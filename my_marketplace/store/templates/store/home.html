@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Black Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #121212; color: #e0e0e0; }
+        .card { background-color: #1e1e1e; border: 1px solid #333; }
+        .navbar { border-bottom: 1px solid #333; }
+        a.text-decoration-none:hover h5 { color: #ffc107 !important; transition: 0.3s; }
+        /* Стиль для категорій */
+        .category-link { color: #aaa; text-decoration: none; display: block; padding: 5px 0; }
+        .category-link:hover { color: #fff; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-black py-3">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-3" href="/">🖤 Black Store</a>
+            
+            <form class="d-flex mx-auto" action="/" method="GET" style="width: 40%;">
+                <input class="form-control bg-dark text-white border-secondary" type="search" name="q" placeholder="Пошук товарів..." value="{{ request.GET.q }}">
+                <button class="btn btn-outline-warning ms-2" type="submit">🔍</button>
+            </form>
+
+            <div class="d-flex align-items-center">
+                <a href="/cart/" class="btn btn-outline-light position-relative me-3">
+                    🛒
+                    {% if cart_count > 0 %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ cart_count }}</span>
+                    {% endif %}
+                </a>
+
+                {% if user.is_authenticated %}
+                    <div class="dropdown">
+                        <span class="text-white me-2">Привіт, <b>{{ user.username }}</b></span>
+                        <a href="/logout/" class="btn btn-sm btn-danger">Вийти</a>
+                    </div>
+                {% else %}
+                    <a href="/login/" class="btn btn-primary btn-sm me-2">Вхід</a>
+                    <a href="/register/" class="btn btn-outline-light btn-sm">Реєстрація</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card p-3 mb-4">
+                    <h5 class="text-white border-bottom pb-2">Категорії</h5>
+                    <a href="/" class="category-link fw-bold text-warning">Всі товари</a>
+                    {% for cat in categories %}
+                        <a href="/?category={{ cat.slug }}" class="category-link">{{ cat.name }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <h2 class="mb-4 text-white">Каталог товарів</h2>
+                
+                {% if not products %}
+                    <div class="alert alert-dark">Товарів не знайдено 😔</div>
+                {% endif %}
+
+                <div class="row">
+                    {% for product in products %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 shadow-lg">
+                            <a href="{% url 'product_detail' product.id %}" class="text-decoration-none">
+                                {% if product.image %}
+                                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover; filter: brightness(0.9);">
+                                {% else %}
+                                    <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 200px;">No Image</div>
+                                {% endif %}
+                            </a>
+                            <div class="card-body">
+                                <a href="{% url 'product_detail' product.id %}" class="text-decoration-none">
+                                    <h5 class="card-title text-white">{{ product.name }}</h5>
+                                </a>
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <h4 class="text-warning mb-0">${{ product.price }}</h4>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent border-top-0 pb-3">
+                                <a href="{% url 'add_to_cart' product.id %}" class="btn btn-light w-100 fw-bold">Додати ✚</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
